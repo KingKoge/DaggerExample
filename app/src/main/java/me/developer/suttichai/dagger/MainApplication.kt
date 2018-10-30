@@ -1,25 +1,19 @@
 package me.developer.suttichai.dagger
 
-import android.app.Activity
 import android.app.Application
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
-import javax.inject.Inject
+import android.content.Context
+import androidx.multidex.MultiDex
+import me.developer.suttichai.dagger.db.DatabaseManager
 
-class MainApplication : Application(), HasActivityInjector {
+class MainApplication : Application() {
 
-    @Inject
-    lateinit var activityDispatchingAndroidInjection: DispatchingAndroidInjector<Activity>
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
+    }
 
     override fun onCreate() {
         super.onCreate()
-
-        val appComponent = DaggerAppComponent.builder().application(this).build()
-        appComponent.inject(this)
-    }
-
-    override fun activityInjector(): AndroidInjector<Activity> {
-        return activityDispatchingAndroidInjection
+        DatabaseManager.init(this)
     }
 }

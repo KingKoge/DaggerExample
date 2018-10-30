@@ -1,61 +1,71 @@
 package me.developer.suttichai.dagger.main
 
 import android.os.Bundle
-import dagger.android.AndroidInjection
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import me.developer.suttichai.dagger.R
-import me.developer.suttichai.dagger.base.BaseActivity
-import javax.inject.Inject
+import me.developer.suttichai.dagger.api.Request
+import me.developer.suttichai.dagger.api.Resource
+import me.developer.suttichai.dagger.api.Status
+import me.developer.suttichai.dagger.api.menu.request.MenuBody
+import me.developer.suttichai.dagger.api.menu.response.MenuResult
+import me.developer.suttichai.dagger.databinding.ActivityMainBinding
+import me.developer.suttichai.dagger.main.adapter.MenuGroupAdapter
 
-class MainActivity : BaseActivity(), MainContract.View {
-    @Inject
-    lateinit var presenter: MainContract.Presenter
+class MainActivity : AppCompatActivity() {
+    lateinit var viewModel: MainViewModel
+    lateinit var adapter: MenuGroupAdapter
+    lateinit var binding: ActivityMainBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-    override fun inject() {
-        AndroidInjection.inject(this)
+        setupView()
+        initViewModel()
     }
 
-    override fun getLayoutView(): Int {
-        return R.layout.activity_main
+    private fun setupView() {
+        val layout = LinearLayoutManager(this)
+        binding.rvMenuGroupList.layoutManager = layout
+        binding.srMenuGroupList.setOnRefreshListener {
+            val request = Request(MenuBody("1", "getMenuByBranch3", "2443", "1", "1"), false)
+            viewModel.getMenu(request)
+        }
+
+        binding.srMenuGroupList.isRefreshing = false
     }
 
-    override fun bindView() {
-
+    private fun initViewModel() {
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        viewModel.menuResult.observe(this, Observer { resources -> onMenuResult(resources) })
+        val request: Request<MenuBody> = Request(MenuBody("1", "getMenuByBranch3", "2443", "1", "1"), false)
+        viewModel.getMenu(request)
     }
 
-    override fun setupView() {
+    private fun onMenuResult(resource: Resource<MenuResult>?) {
+        val status = resource?.status
 
+        when (status) {
+            Status.SUCCESS -> {
+                Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+                adapter = MenuGroupAdapter(resource.data?.menuGroups) { onStartMenuPage() }
+                binding.rvMenuGroupList.adapter = adapter
+            }
+            Status.ERROR -> {
+
+            }
+            Status.LOADING -> {
+                binding.srMenuGroupList.isRefreshing = false
+            }
+        }
     }
 
-    override fun restoreArgument(extras: Bundle) {
+    private fun onStartMenuPage() {
 
-    }
-
-    override fun initialize() {
-        presenter.printHello()
-    }
-
-    override fun saveInstanceState(outState: Bundle) {
-
-    }
-
-    override fun restoreInstanceState(savedInstanceState: Bundle) {
-
-    }
-
-    override fun restoreView() {
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        presenter.start()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        presenter.stop()
     }
 }

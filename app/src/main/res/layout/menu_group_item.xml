@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="menuGroup"
+            type="me.developer.suttichai.dagger.api.menu.response.MenuGroup" />
+
+        <variable
+            name="menuGroupListener"
+            type="me.developer.suttichai.dagger.main.adapter.MenuGroupAdapter.Listener" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true"
+        android:onClick="@{() -> menuGroupListener.onMenuGroupClick()}">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvGroupId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@{menuGroup.groupId}"
+                android:textColor="#c0c0c0" />
+
+            <TextView
+                android:id="@+id/tvGroupName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@{menuGroup.groupName}"
+                android:textColor="#000000"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>
